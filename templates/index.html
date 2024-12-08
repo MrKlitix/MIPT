@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск рецептов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header>
+        <h1>🍴 Поиск рецептов</h1>
+        <p>Найдите блюда, которые вы можете приготовить из имеющихся ингредиентов!</p>
+    </header>
+    <main class="container">
+        <form method="POST" class="form">
+            <label for="ingredients">Введите ингредиенты (через запятую):</label>
+            <div class="input-group">
+                <input
+                    type="text"
+                    id="ingredients"
+                    name="ingredients"
+                    value="{{ user_ingredients }}"
+                    placeholder="например: куриное филе, яйца, лук"
+                    required>
+                <button type="submit">Найти рецепты</button>
+            </div>
+        </form>
+
+        {% if user_ingredients %}
+        <section>
+            <p>Ваши ингредиенты: <strong>{{ user_ingredients }}</strong></p>
+        </section>
+        {% endif %}
+
+        {% if recipes_found %}
+        <section>
+            <h2>🎉 Рецепты, которые вы можете приготовить:</h2>
+            <ul class="recipe-list">
+                {% for recipe in recipes_found %}
+                <li class="recipe-card">
+                    <h3><a href="{{ recipe['url'] }}" target="_blank">{{ recipe['title'] }}</a></h3>
+                    <p>Ингредиенты: {{ recipe['ingredients'] }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+        {% if partial_recipes %}
+        <section>
+            <h2>💡 Частичные совпадения:</h2>
+            <div class="recipe-grid">
+                {% for recipe in partial_recipes %}
+                <div class="recipe-card">
+                    <h3>💡 <a href="{{ recipe['url'] }}" target="_blank">{{ recipe['title'] }}</a></h3>
+                    <p>Ингредиенты: {{ recipe['ingredients'] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+    <footer>
+        <p>Саяпов Тимур ❤️ | © 2024 Поиск рецептов</p>
+    </footer>
+</body>
+</html>
