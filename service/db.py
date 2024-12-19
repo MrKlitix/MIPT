@@ -1,7 +1,14 @@
 import sqlite3
 import time
+import logging
 from scrape import scrape_recipes
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s]: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
 
 DATABASE = "recipes.db"
 
@@ -18,10 +25,8 @@ def create_table():
             last_updated INTEGER
         )
     ''')
-
     conn.commit()
     conn.close()
-
 
 def add_recipe(title, ingredients, url):
     conn = sqlite3.connect(DATABASE)
@@ -31,10 +36,8 @@ def add_recipe(title, ingredients, url):
         INSERT OR IGNORE INTO recipes (title, ingredients, url, last_updated)
         VALUES (?, ?, ?, ?)
     ''', (title, ", ".join(ingredients), url, int(time.time())))
-
     conn.commit()
     conn.close()
-
 
 def is_database_empty():
     conn = sqlite3.connect(DATABASE)
@@ -46,17 +49,15 @@ def is_database_empty():
     conn.close()
     return count == 0
 
-
 def update_database():
-    print("Начинаем обновление базы данных...")
+    logger.info("Начинаем обновление базы данных...")
     recipes = scrape_recipes()
     for recipe in recipes:
         title = recipe['title']
         ingredients = recipe['ingredients']
         url = recipe['url']
         add_recipe(title, ingredients, url)
-    print("Обновление базы данных завершено!")
-
+    logger.info("Обновление базы данных завершено!")
 
 def view_all_recipes():
     conn = sqlite3.connect(DATABASE)
@@ -67,18 +68,15 @@ def view_all_recipes():
 
     if rows:
         for row in rows:
-            print(f"ID: {row[0]}, Название: {row[1]}, Ингредиенты: {row[2]}, Ссылка: {row[3]}")
+            logger.info(f"ID: {row[0]}, Название: {row[1]}, Ингредиенты: {row[2]}, Ссылка: {row[3]}")
     else:
-        print("База данных пуста.")
-
+        logger.info("База данных пуста.")
     conn.close()
-
 
 def start_database():
     create_table()
     if is_database_empty():
-        print("База данных пуста. Запускаем скраппинг и обновление данных.")
+        logger.info("База данных пуста. Запускаем скраппинг и обновление данных.")
         update_database()
     else:
-        print("База данных готова к работе.")
-
+        logger.info("База данных готова к работе.")

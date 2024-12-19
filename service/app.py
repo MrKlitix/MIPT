@@ -1,7 +1,14 @@
 from flask import Flask, render_template, request
 from db import start_database
 import sqlite3
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s]: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 DATABASE = "recipes.db"
@@ -24,13 +31,14 @@ def get_all_recipes():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    logger.info("Обработка запроса на главной странице")
     recipes_found = []
     partial_recipes = []
-    recipes_with_extra = []
     user_ingredients = []
 
     if request.method == "POST":
-        user_ingredients = request.form.get("ingredients", "").lower().strip()
+        user_input = request.form.get("ingredients", "")
+        user_ingredients = user_input.lower().strip()
         user_ingredients = [ingredient.strip() for ingredient in user_ingredients.split(",")]
 
         all_recipes = get_all_recipes()
@@ -38,14 +46,14 @@ def index():
         for recipe in all_recipes:
             recipe_ingredients = recipe["ingredients"]
 
-            if set(recipe_ingredients).issubset(user_ingredients): #Полное совпадение
+            if set(recipe_ingredients).issubset(user_ingredients):  # Полное совпадение
                 recipes_found.append({
                     "title": recipe["title"],
                     "ingredients": ", ".join(recipe["ingredients"]),
                     "url": recipe["url"]
                 })
 
-            elif set(user_ingredients).intersection(recipe_ingredients): #Частичное совпадение
+            elif set(user_ingredients).intersection(recipe_ingredients):  # Частичное совпадение
                 partial_recipes.append({
                     "title": recipe["title"],
                     "ingredients": ", ".join(recipe["ingredients"]),
@@ -60,5 +68,7 @@ def index():
     )
 
 if __name__ == "__main__":
+    logger.info("Инициализация базы данных и запуск сервера")
     start_database()
+    logging.getLogger('werkzeug').disabled = True
     app.run(host="0.0.0.0", port=5000)
