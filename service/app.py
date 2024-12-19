@@ -32,7 +32,7 @@ def get_all_recipes():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    logger.info("Обработка запроса на главной странице")
+    logger.info("Обработка запроса на сайте.")
     recipes_found = []
     partial_recipes = []
     user_ingredients = []
@@ -69,7 +69,8 @@ def index():
     )
 
 if __name__ == "__main__":
-    logger.info("Инициализация базы данных и запуск сервера")
+    logger.info("Инициализация базы данных и запуск сервера.")
     start_database()
+    logger.info("Откройте http://localhost:5000 в браузере.")
     logging.getLogger('werkzeug').disabled = True
     app.run(host="0.0.0.0", port=5000)
