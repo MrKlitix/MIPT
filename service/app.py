@@ -20,7 +20,6 @@ def get_all_recipes():
     cursor.execute("SELECT title, ingredients, url FROM recipes")
     rows = cursor.fetchall()
     conn.close()
-
     recipes = []
     for row in rows:
         recipes.append({
